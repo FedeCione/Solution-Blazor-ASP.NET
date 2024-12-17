@@ -1,4 +1,4 @@
-## BLAZOR - ASP.NET - APP
+## BLAZOR - ASP.NET - FULLSTACK APP
 
 ### Backend
 * ASP.NET Core
