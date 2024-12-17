@@ -1,0 +1,42 @@
+@inherits LayoutComponentBase
+
+<BlazorBootstrapLayout StickyHeader="true">
+    <HeaderSection>
+        <ThemeSwitcher Class="ps-3 ps-lg-2" />
+    </HeaderSection>
+
+    <SidebarSection>
+        <Sidebar2 Href="/"
+                  ImageSrc="https://demos.blazorbootstrap.com/images/logo/logo-white.svg"
+                  Title="Blazor Bootstrap"
+                  BadgeText="3.3.1"
+                  DataProvider="Sidebar2DataProvider"
+                  WidthUnit="Unit.Px" />
+    </SidebarSection>
+    <ContentSection>
+        @Body
+    </ContentSection>
+</BlazorBootstrapLayout>
+
+@code {
+    private IEnumerable<NavItem> navItems = default!;
+
+    private async Task<Sidebar2DataProviderResult> Sidebar2DataProvider(Sidebar2DataProviderRequest request)
+    {
+        if (navItems is null)
+            navItems = GetNavItems();
+
+        return await Task.FromResult(request.ApplyTo(navItems));
+    }
+
+    private IEnumerable<NavItem> GetNavItems()
+    {
+        navItems = new List<NavItem>
+        {
+            new NavItem { Id = "1", Href = "/", IconName = IconName.HouseDoorFill, Text = "Home", Match=NavLinkMatch.All},
+            new NavItem { Id = "2", Href = "/empleados", IconName = IconName.PersonWorkspace, Text = "Empleados"},
+        };
+
+        return navItems;
+    }
+}

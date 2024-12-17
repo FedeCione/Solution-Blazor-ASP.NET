@@ -1,0 +1,98 @@
+﻿@page "/empleado"
+@page "/empleado/{idWorkerUpdate:int}"
+
+@using BlazorCrud.Shared;
+@using BlazorCrud.Client.Services;
+
+@inject IWorkerService workerService;
+@inject IDepartmentService departmentService;
+@inject NavigationManager navigation;
+
+
+<h3>@title</h3>
+
+<EditForm Model="worker" OnValidSubmit="OnValidSubmit">
+	<DataAnnotationsValidator></DataAnnotationsValidator>
+
+	<div class="mb-3">
+		<label class="form-label">Nombre Completo</label>
+		<InputText class="form-control" @bind-Value="worker.FullName"></InputText>
+		<ValidationMessage For="@(() => worker.FullName)"></ValidationMessage>
+	</div>
+
+	<div class="mb-3">
+		<label class="form-label">Departamento</label>
+		<InputSelect class="form-select" @bind-Value="worker.IdDepartment">
+			<option value="0">-- Seleccionar --</option>
+			@foreach(var item in listDepartment)
+			{
+				<option value="@item.IdDepartment">@item.Name</option>
+			}
+		</InputSelect>
+		<ValidationMessage For="@(() => worker.IdDepartment)"></ValidationMessage>
+	</div>
+
+	<div class="mb-3">
+		<label class="form-label">Sueldo</label>
+		<InputNumber class="form-control" @bind-Value="worker.Salary"></InputNumber>
+		<ValidationMessage For="@(() => worker.Salary)"></ValidationMessage>
+	</div>
+
+	<div class="mb-3">
+		<label class="form-label">Fecha de Contrato</label>
+		<InputDate class="form-control" @bind-Value="worker.ContractDate"></InputDate>
+		<ValidationMessage For="@(() => worker.ContractDate)"></ValidationMessage>
+	</div>
+
+	<button class="btn btn-primary" type="submit">
+		@btnText
+	</button>
+
+	<a class="btn btn-warning" href="empleados">Volver</a>
+</EditForm>
+
+@code {
+	[Parameter]
+	public int idWorkerUpdate { get; set; } = 0;
+
+	string title = string.Empty;
+	string btnText = string.Empty;
+
+	WorkerDTO worker = new WorkerDTO();
+	List<DepartmentDTO> listDepartment = new List<DepartmentDTO>();
+
+	protected override async Task OnInitializedAsync()
+	{
+		if(idWorkerUpdate != 0)
+		{
+			worker = await workerService.Search(idWorkerUpdate);
+			btnText = "Actualizar Empleado";
+			title = "Editar Empleado";
+		}
+		else
+		{
+			worker.ContractDate = DateOnly.FromDateTime(DateTime.Today);
+			btnText = "Guardar Empleado";
+			title = "Nuevo Empleado";
+		}
+		listDepartment = await departmentService.List();
+	}
+
+	private async Task OnValidSubmit()
+	{
+		int idReturned = 0;
+		if(idWorkerUpdate == 0)
+		{
+			idReturned = await workerService.Create(worker);
+		}
+		else
+		{
+			idReturned = await workerService.Update(worker);
+		}
+
+		if(idReturned != 0)
+		{
+			navigation.NavigateTo("/empleados");
+		}
+	}
+}
